@@ -9,96 +9,63 @@ const Home = () => {
 	const [todoList, setTodoList] = useState([]);
 	const [checkValue, setCheckValue] = useState("");
 
-	console.log({ addTodo });
+	const checkList = (event, id) => {
+		let arrCheck = [...todoList];
+		if (event.target.checked) {
+			arrCheck[id][2] = true;
+			setTodoList(arrCheck);
+		} else {
+			arrCheck[id][2] = false;
+			setTodoList(arrCheck);
+		}
+		setTodoList(arrCheck);
+		console.log(event);
+	};
 
-	const addNewTodo = (event) => {
+	const deleteTodo = (id) => {
+		let editedTodoList = [...todoList];
+		editedTodoList.splice(id, 1);
+		console.log(editedTodoList);
+		return setTodoList(editedTodoList);
+	};
+
+	const addNewTodo = () => {
 		if (!checkValue || !addTodo) {
 			alert("Asegurate de llenar bien los campos");
 		} else {
-			const newTodoList = [...todoList, [addTodo, checkValue]];
+			let newTodoList = [...todoList, [addTodo, checkValue, false]];
+			const normalTodoList = newTodoList.filter(
+				(todo) => todo[1] == "normal"
+			);
+			const importantTodoList = newTodoList.filter(
+				(todo) => todo[1] == "important"
+			);
+			const urgentTodoList = newTodoList.filter(
+				(todo) => todo[1] == "urgent"
+			);
+			newTodoList = urgentTodoList.concat(
+				importantTodoList.concat(normalTodoList)
+			);
 			setTodoList(newTodoList);
-			console.log(event);
 		}
 	};
 
-	console.log({ todoList });
+	const todoText = (event) => setAddTodo(event.target.value);
 
+	const selectImportance = (event) => setCheckValue(event.target.value);
+
+	console.log({ todoList });
+	console.log({ addTodo });
 	return (
 		<div className="container-fluid d-flex justify-content-center align-items-start p-0 vh-100">
 			<div
 				style={{ minWidth: "560px" }}
 				className="my-5 bg-light p-5 border border-info border-2 rounded">
-				<div className="input-group mx-0 mb-3">
-					<input
-						type="text"
-						className="form-control"
-						aria-label="Text input with dropdown button"
-						placeholder="Añadir nueva tarea..."
-						onChange={(event) => setAddTodo(event.target.value)}
-					/>
-					<button
-						className="btn btn-outline-secondary dropdown-toggle"
-						type="button"
-						data-bs-toggle="dropdown"
-						aria-expanded="false">
-						Prioridad
-					</button>
-					<ul className="dropdown-menu dropdown-menu-end">
-						<li>
-							<a className="dropdown-item" href="#">
-								<input
-									className="form-check-input me-2"
-									type="radio"
-									name="task"
-									id="normal"
-									value={0}
-									onChange={(event) =>
-										setCheckValue(event.target.value)
-									}
-								/>
-								Normal
-							</a>
-						</li>
-						<li>
-							<a className="dropdown-item" href="#">
-								<input
-									className="form-check-input me-2"
-									type="radio"
-									name="task"
-									id="important"
-									value={1}
-									onChange={(event) =>
-										setCheckValue(event.target.value)
-									}
-								/>
-								Importante
-							</a>
-						</li>
-						<li>
-							<a className="dropdown-item" href="#">
-								<input
-									className="form-check-input me-2"
-									type="radio"
-									name="task"
-									id="urgent"
-									value={2}
-									onChange={(event) =>
-										setCheckValue(event.target.value)
-									}
-								/>
-								Urgente
-							</a>
-						</li>
-						<li className="d-flex justify-content-center mt-2">
-							<button
-								type="button"
-								className="btn btn-outline-secondary"
-								onClick={addNewTodo}>
-								Añadir tarea
-							</button>
-						</li>
-					</ul>
-				</div>
+				<HeadTodo
+					todoText={todoText}
+					selectImportance={selectImportance}
+					addNewTodo={addNewTodo}
+				/>
 				{!todoList.length ? (
 					<NoTodo />
 				) : (
@@ -108,19 +75,31 @@ const Home = () => {
 							id={index}
 							importance={todo[1]}
 							textContent={todo[0]}
+							deleteTodo={deleteTodo}
+							checkList={checkList}
+							isCheck={todo[2]}
 						/>
 					))
 				)}
 				<div className="d-flex justify-content-center">
 					<span className="badge bg-info text-dark me-2">
-						Normales: 0
+						Normales:{" "}
+						{todoList.filter((todo) => todo[1] == "normal").length}
 					</span>
 					<span className="badge bg-warning text-dark mx-2">
-						Importantes: 0
+						Importantes:{" "}
+						{
+							todoList.filter((todo) => todo[1] == "important")
+								.length
+						}
 					</span>
-					<span className="badge bg-danger mx-2">Urgentes: 0</span>
+					<span className="badge bg-danger mx-2">
+						Urgentes:{" "}
+						{todoList.filter((todo) => todo[1] == "urgent").length}
+					</span>
 					<span className="badge bg-success ms-2">
-						Tareas Completadas: 0
+						Tareas Completadas:{" "}
+						{todoList.filter((todo) => todo[2] == true).length}
 					</span>
 				</div>
 			</div>
